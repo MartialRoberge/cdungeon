@@ -1,6 +1,8 @@
 #!/bin/bash
 # C:\DUNGEON - Script de lancement
 
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+
 echo "🎮 Démarrage de C:\DUNGEON..."
 echo ""
 
@@ -11,7 +13,7 @@ sleep 1
 
 # Start backend
 echo "🐍 Backend FastAPI → http://localhost:8123"
-cd "$(dirname "$0")/backend"
+cd "$ROOT/backend"
 .venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8123 &
 BACKEND_PID=$!
 sleep 2
@@ -26,7 +28,7 @@ fi
 
 # Start frontend
 echo "⚛️  Frontend React → http://localhost:5174 (ou 5173)"
-cd "$(dirname "$0")/frontend"
+cd "$ROOT/frontend"
 npm run dev &
 FRONTEND_PID=$!
 sleep 3
