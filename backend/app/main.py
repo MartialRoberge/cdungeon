@@ -47,4 +47,6 @@ def startup():
 
 @app.get("/")
 def root():
-    return {"message": "C:\\DUNGEON API", "status": "online", "zones": 8, "challenges": 48}
+    from app.content.challenge_types import ZONE_COUNT
+    from app.content.challenges_data import CHALLENGES
+    return {"message": "C:\\DUNGEON API", "status": "online", "zones": ZONE_COUNT, "challenges": len(CHALLENGES)}

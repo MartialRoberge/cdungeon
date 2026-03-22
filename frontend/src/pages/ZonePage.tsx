@@ -7,7 +7,8 @@ import { sounds } from "../utils/sound";
 
 interface Room {
   room_id: string; room_number: number; name: string;
-  challenge_type: string; is_boss: boolean; is_cleared: boolean; attempts_taken: number;
+  challenge_type: string; is_boss: boolean; is_mini_boss: boolean;
+  is_cleared: boolean; is_locked: boolean; attempts_taken: number;
 }
 
 const TYPE_ICONS: Record<string, string> = {
@@ -55,7 +56,7 @@ export default function ZonePage() {
         >
           <button
             onClick={() => { sounds.click(); navigate("/map"); }}
-            className="text-xs mb-4 transition-colors duration-200"
+            className="text-xs mb-4 py-2 px-1 transition-colors duration-200"
             style={{ color: "#3a3a5c" }}
             onMouseEnter={(e) => (e.currentTarget.style.color = "#6a6a8a")}
             onMouseLeave={(e) => (e.currentTarget.style.color = "#3a3a5c")}
@@ -64,13 +65,13 @@ export default function ZonePage() {
           </button>
 
           {zoneMeta && (
-            <div className="flex items-center gap-4">
-              <span className="text-4xl">{zoneMeta.emoji}</span>
-              <div>
-                <h1 className="font-bold text-xl text-white">{zoneMeta.name}</h1>
-                <p className="text-xs mt-0.5" style={{ color: "#6a6a8a" }}>Boss : {zoneMeta.boss_name}</p>
+            <div className="flex items-center gap-3 sm:gap-4">
+              <span className="text-3xl sm:text-4xl shrink-0">{zoneMeta.emoji}</span>
+              <div className="min-w-0 flex-1">
+                <h1 className="font-bold text-lg sm:text-xl text-white truncate">{zoneMeta.name}</h1>
+                <p className="text-xs mt-0.5 truncate" style={{ color: "#6a6a8a" }}>Boss : {zoneMeta.boss_name}</p>
               </div>
-              <div className="ml-auto">
+              <div className="shrink-0">
                 <span className="text-xs font-mono px-2 py-1 rounded-lg" style={{ background: `${color}12`, color, border: `1px solid ${color}25` }}>
                   Zone {zn}
                 </span>
@@ -82,7 +83,7 @@ export default function ZonePage() {
         {/* Room path */}
         <motion.div variants={container} initial="hidden" animate="visible" className="space-y-1">
           {rooms.map((room, idx) => {
-            const accessible = idx === 0 || rooms[idx - 1].is_cleared;
+            const accessible = !room.is_locked;
             return (
               <motion.div key={room.room_id} variants={nodeVariant}>
                 {idx > 0 && (
@@ -111,7 +112,7 @@ export default function ZonePage() {
 function RoomNode({ room, accessible, color, onClick }: {
   room: Room; accessible: boolean; color: string; onClick: () => void;
 }) {
-  const icon = room.is_boss ? "💀" : TYPE_ICONS[room.challenge_type] || "❓";
+  const icon = room.is_boss ? "💀" : room.is_mini_boss ? "⚔️" : TYPE_ICONS[room.challenge_type] || "❓";
   const bossColor = "#ff3355";
 
   const borderColor = !accessible
@@ -142,13 +143,18 @@ function RoomNode({ room, accessible, color, onClick }: {
       </div>
 
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2 mb-0.5">
+        <div className="flex items-center gap-2 mb-0.5 flex-wrap">
           {room.is_boss && (
-            <span className="text-xs font-mono px-1.5 py-0.5 rounded font-bold" style={{ background: "rgba(255,51,85,0.1)", color: bossColor, border: "1px solid rgba(255,51,85,0.2)" }}>
+            <span className="text-xs font-mono px-1.5 py-0.5 rounded font-bold shrink-0" style={{ background: "rgba(255,51,85,0.1)", color: bossColor, border: "1px solid rgba(255,51,85,0.2)" }}>
               BOSS
             </span>
           )}
-          <span className="font-semibold text-sm text-white">{room.name}</span>
+          {room.is_mini_boss && (
+            <span className="text-xs font-mono px-1.5 py-0.5 rounded font-bold shrink-0" style={{ background: "rgba(255,184,0,0.1)", color: "#ffb800", border: "1px solid rgba(255,184,0,0.2)" }}>
+              MINI-BOSS
+            </span>
+          )}
+          <span className="font-semibold text-sm text-white truncate">{room.name}</span>
           {room.is_cleared && (
             <span className="text-xs font-mono px-1.5 py-0.5 rounded-md" style={{ background: `${color}15`, color, border: `1px solid ${color}30` }}>✓</span>
           )}

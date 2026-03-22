@@ -92,7 +92,7 @@ export default function ProfilePage() {
             </div>
             <button
               onClick={handleShare}
-              className="text-xs px-3 py-1.5 rounded-xl transition-all duration-200 font-medium"
+              className="text-xs px-3 py-2.5 sm:py-1.5 rounded-xl transition-all duration-200 font-medium"
               style={{ background: "rgba(0,255,136,0.08)", color: "#00ff88", border: "1px solid rgba(0,255,136,0.15)" }}
               onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,255,136,0.14)")}
               onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(0,255,136,0.08)")}
@@ -127,7 +127,7 @@ export default function ProfilePage() {
           variants={container}
           initial="hidden"
           animate="visible"
-          className="grid grid-cols-4 gap-2"
+          className="grid grid-cols-2 xs:grid-cols-4 gap-2"
         >
           {stats.map((s) => (
             <motion.div
@@ -166,7 +166,7 @@ export default function ProfilePage() {
                   <p className="text-xs font-mono mb-2" style={{ color: "#3a3a5c" }}>
                     {CAT_LABELS[cat] || cat}
                   </p>
-                  <div className="grid grid-cols-4 gap-2">
+                  <div className="grid grid-cols-3 xs:grid-cols-4 gap-2">
                     {catBadges.map((b) => (
                       <motion.div
                         key={b.id}

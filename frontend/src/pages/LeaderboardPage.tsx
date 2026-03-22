@@ -53,7 +53,7 @@ export default function LeaderboardPage() {
             <button
               key={t.key}
               onClick={() => { sounds.click(); setBy(t.key); }}
-              className="flex-1 py-2 text-xs font-semibold rounded-xl transition-all duration-200"
+              className="flex-1 py-2.5 sm:py-2 text-xs font-semibold rounded-xl transition-all duration-200"
               style={{
                 background: by === t.key ? "#00ff88" : "transparent",
                 color: by === t.key ? "#080810" : "#3a3a5c",
@@ -98,7 +98,7 @@ export default function LeaderboardPage() {
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm" style={{ color: r.is_me ? "#00ff88" : "white" }}>
+                      <span className="font-semibold text-sm truncate" style={{ color: r.is_me ? "#00ff88" : "white" }}>
                         {r.username}
                       </span>
                       {r.is_me && (

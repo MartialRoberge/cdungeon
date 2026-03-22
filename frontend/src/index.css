@@ -15,12 +15,22 @@
     --border: #1e1e35;
     --muted: #3a3a5c;
   }
-  body { @apply bg-dg-bg text-white; font-family: 'Space Grotesk', system-ui, sans-serif; margin: 0; min-height: 100vh; }
+  body {
+    @apply bg-dg-bg text-white;
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    padding-top: env(safe-area-inset-top);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
   * { box-sizing: border-box; }
   ::-webkit-scrollbar { width: 4px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  #root { min-height: 100vh; }
+  html { overflow-x: hidden; }
+  #root { min-height: 100vh; overflow-x: hidden; }
 }
 
 @layer components {

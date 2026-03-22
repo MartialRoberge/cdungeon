@@ -81,7 +81,7 @@ function ZoneCard({ zone, color, onClick }: { zone: Zone; color: string; onClick
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className="font-semibold text-sm text-white">{zone.name}</span>
+          <span className="font-semibold text-sm text-white truncate">{zone.name}</span>
           {zone.is_boss_cleared && (
             <span className="text-xs font-mono px-1.5 py-0.5 rounded-md" style={{ background: `${color}15`, color, border: `1px solid ${color}30` }}>✓</span>
           )}

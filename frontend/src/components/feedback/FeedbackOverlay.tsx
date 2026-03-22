@@ -26,6 +26,7 @@ const ICON_MAP: Record<string, string> = {
   wand:"🪄",crown:"👑",scroll:"📜",trophy:"🏆",star:"⭐",lightning:"⚡",
   clock:"⏱️",bug:"🐛",fire_1:"🔥",fire_2:"🔥🔥",fire_3:"🔥🔥🔥",
   calendar_3:"📅",calendar_7:"🗓️",eye:"👁️",
+  mini_shield:"⚔️",milestone:"🏁",diamond:"💎",
 };
 
 const overlay: Variants = { hidden: { opacity: 0 }, visible: { opacity: 1 }, exit: { opacity: 0 } };

@@ -72,6 +72,8 @@ class ZoneOut(BaseModel):
     is_unlocked: bool
     is_boss_cleared: bool
     boss_name: str
+    has_mini_boss_1: bool
+    has_mini_boss_2: bool
 
 
 class RoomOut(BaseModel):
@@ -81,7 +83,9 @@ class RoomOut(BaseModel):
     name: str
     challenge_type: str
     is_boss: bool
+    is_mini_boss: bool
     is_cleared: bool
+    is_locked: bool
     attempts_taken: int
 
 
@@ -103,6 +107,24 @@ class AttemptResponse(BaseModel):
     badge_unlocked: BadgeOut | None
     room_cleared: bool
     zone_cleared: bool
+    is_mini_boss: bool
+
+
+# --- Orb (placeholder for future AI orb) ---
+class OrbContext(BaseModel):
+    concept_tags: list[str]
+    difficulty: int
+    player_accuracy: dict[str, float]
+
+
+class OrbHintRequest(BaseModel):
+    room_id: str
+    player_context: OrbContext
+
+
+class OrbHintResponse(BaseModel):
+    hint: str
+    source: str = "static"
 
 
 # --- Daily ---

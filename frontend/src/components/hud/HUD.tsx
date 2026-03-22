@@ -27,7 +27,6 @@ export default function HUD() {
 
   const navItems = [
     { to: "/map", label: "Carte" },
-    { to: "/mentor", label: "Guide" },
     { to: "/profile", label: "Profil" },
     { to: "/leaderboard", label: "Top" },
   ];
@@ -37,7 +36,7 @@ export default function HUD() {
       initial={{ y: -60, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center gap-4 px-5 py-3"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center gap-2 sm:gap-4 px-3 sm:px-5 py-3"
       style={{
         background: "rgba(8,8,16,0.85)",
         backdropFilter: "blur(20px)",
@@ -45,15 +44,16 @@ export default function HUD() {
       }}
     >
       {/* Logo */}
-      <Link to="/map" className="font-mono text-sm font-bold tracking-widest shrink-0" style={{ color: "#00ff88", textShadow: "0 0 12px rgba(0,255,136,0.3)" }}>
-        C:\DUNGEON
+      <Link to="/map" className="font-mono text-xs sm:text-sm font-bold tracking-widest shrink-0" style={{ color: "#00ff88", textShadow: "0 0 12px rgba(0,255,136,0.3)" }}>
+        C:\D
+        <span className="hidden sm:inline">UNGEON</span>
       </Link>
 
       {/* Divider */}
-      <div className="w-px h-4 bg-dg-border" />
+      <div className="w-px h-4 bg-dg-border hidden sm:block" />
 
       {/* HP */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1 sm:gap-1.5">
         {[1, 2, 3].map((i) => (
           <motion.span
             key={i}
@@ -95,11 +95,11 @@ export default function HUD() {
         )}
       </AnimatePresence>
 
-      {/* XP bar */}
-      <div className="flex-1 max-w-40">
+      {/* XP bar — hidden on very small screens, compact on mobile */}
+      <div className="hidden xs:flex flex-1 max-w-24 sm:max-w-40 flex-col">
         <div className="flex justify-between items-center mb-1">
           <span className="text-xs text-dg-muted font-medium">Niv.{level}</span>
-          <span className="text-xs font-mono" style={{ color: "#00ff88" }}>{xp} XP</span>
+          <span className="text-xs font-mono hidden sm:inline" style={{ color: "#00ff88" }}>{xp} XP</span>
         </div>
         <div className="h-1 rounded-full overflow-hidden" style={{ background: "#1e1e35" }}>
           <motion.div
@@ -112,12 +112,12 @@ export default function HUD() {
       </div>
 
       {/* Nav */}
-      <nav className="flex gap-1 ml-auto">
+      <nav className="flex gap-0.5 sm:gap-1 ml-auto">
         {navItems.map(({ to, label }) => (
           <Link
             key={to}
             to={to}
-            className="text-xs px-3 py-1.5 rounded-lg transition-all duration-200 font-medium"
+            className="text-xs px-2.5 py-2 sm:px-3 sm:py-1.5 rounded-lg transition-all duration-200 font-medium min-w-[44px] text-center"
             style={{
               color: location.pathname === to ? "#00ff88" : "#3a3a5c",
               background: location.pathname === to ? "rgba(0,255,136,0.08)" : "transparent",
@@ -128,8 +128,8 @@ export default function HUD() {
         ))}
       </nav>
 
-      {/* User */}
-      <div className="text-xs font-medium text-dg-muted">{player.username}</div>
+      {/* User — hidden on mobile */}
+      <div className="text-xs font-medium text-dg-muted hidden md:block">{player.username}</div>
     </motion.div>
   );
 }

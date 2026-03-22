@@ -7,6 +7,7 @@ from app.schemas import AttemptRequest, AttemptResponse, BadgeOut
 from app.services.attempt_service import process_attempt
 from app.services.badge_service import check_and_grant
 from app.content.challenges_data import CHALLENGES
+from app.content.challenge_types import ChallengeData
 
 router = APIRouter(prefix="/rooms", tags=["rooms"])
 
@@ -18,7 +19,7 @@ def submit_attempt(
     player: Player = Depends(get_current_player),
     db: Session = Depends(get_db),
 ) -> AttemptResponse:
-    ch = CHALLENGES.get(room_id)
+    ch: ChallengeData | None = CHALLENGES.get(room_id)
     if not ch:
         raise HTTPException(status_code=404, detail="Salle inconnue")
 
@@ -31,9 +32,9 @@ def submit_attempt(
         db=db,
     )
 
-    correct_attempts = (
+    total_attempts_in_room: int = (
         db.query(Attempt)
-        .filter_by(player_id=player.id, challenge_id=room_id, correct=True)
+        .filter_by(player_id=player.id, challenge_id=room_id)
         .count()
     )
     granted = check_and_grant(
@@ -41,13 +42,15 @@ def submit_attempt(
         context={
             "correct": result["correct"],
             "room_id": room_id,
-            "zone_number": ch.get("zone"),
-            "is_boss": ch.get("is_boss"),
+            "zone_number": ch["zone"],
+            "room_number": ch["room"],
+            "is_boss": ch["is_boss"],
+            "is_mini_boss": ch["is_mini_boss"],
             "room_cleared": result["room_cleared"],
             "zone_cleared": result["zone_cleared"],
             "combo": result["combo"],
-            "challenge_type": ch.get("challenge_type"),
-            "attempts_in_room": correct_attempts,
+            "challenge_type": ch["challenge_type"],
+            "attempts_in_room": total_attempts_in_room,
             "time_ms": data.time_ms,
         },
         db=db,
@@ -55,14 +58,15 @@ def submit_attempt(
     db.commit()
 
     badge_out: BadgeOut | None = None
-    if granted is not None:
+    if granted:
+        first = granted[0]
         badge_out = BadgeOut(
-            id=str(granted.id),
-            name=str(granted.name),
-            description=str(granted.description),
-            icon_key=str(granted.icon_key),
-            category=str(granted.category),
-            secret=bool(granted.secret),
+            id=str(first.id),
+            name=str(first.name),
+            description=str(first.description),
+            icon_key=str(first.icon_key),
+            category=str(first.category),
+            secret=bool(first.secret),
             earned=True,
             earned_at=None,
         )
@@ -78,4 +82,5 @@ def submit_attempt(
         badge_unlocked=badge_out,
         room_cleared=result["room_cleared"],
         zone_cleared=result["zone_cleared"],
+        is_mini_boss=result["is_mini_boss"],
     )

@@ -67,7 +67,7 @@ export default function AuthPage() {
           <div className="flex rounded-xl p-1 gap-1" style={{ background: "#080810" }}>
             {(["login","register"] as const).map((m) => (
               <button key={m} onClick={() => { setMode(m); setError(""); sounds.click(); }}
-                className="flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200"
+                className="flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all duration-200"
                 style={{ background: mode === m ? "#00ff88" : "transparent", color: mode === m ? "#080810" : "#3a3a5c" }}
               >
                 {m === "login" ? "Connexion" : "Créer un compte"}
