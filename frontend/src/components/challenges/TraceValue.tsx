@@ -1,41 +1,25 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react";
+import { motion } from "framer-motion";
 import { sounds } from "../../utils/sound";
-
-interface CodeLine { line: number; text: string; }
-interface AnimStep { after_line: number; variable: string; value: string | number; }
 
 interface Props {
   payload: {
-    code_lines: CodeLine[];
-    animation_steps: AnimStep[];
-    question: string;
-    options: (string | number)[];
-    correct_answer: string | number;
+    code: string;
+    correct_answer: string;
   };
-  onAnswer: (ans: string | number) => void;
+  onAnswer: (ans: string) => void;
   disabled: boolean;
 }
 
 export default function TraceValue({ payload, onAnswer, disabled }: Props) {
-  const [vars, setVars] = useState<Record<string, string | number>>({});
-  const [currentLine, setCurrentLine] = useState(0);
-  const [ready, setReady] = useState(false);
+  const [value, setValue] = useState("");
+  const lines = payload.code.split("\n");
 
-  useEffect(() => {
-    setVars({}); setCurrentLine(0); setReady(false);
-    let i = 0;
-    const run = () => {
-      if (i >= payload.animation_steps.length) { setReady(true); return; }
-      const s = payload.animation_steps[i];
-      setCurrentLine(s.after_line);
-      setVars((prev) => ({ ...prev, [s.variable]: s.value }));
-      i++;
-      setTimeout(run, 700);
-    };
-    const t = setTimeout(run, 500);
-    return () => clearTimeout(t);
-  }, [payload]);
+  const submit = () => {
+    if (!value.trim() || disabled) return;
+    sounds.click();
+    onAnswer(value.trim());
+  };
 
   return (
     <div className="space-y-4">
@@ -49,96 +33,56 @@ export default function TraceValue({ payload, onAnswer, disabled }: Props) {
           </div>
           <span className="text-xs font-mono" style={{ color: "#3a3a5c" }}>main.c</span>
         </div>
-        <div className="p-3 space-y-0.5">
-          {payload.code_lines.map((l) => (
-            <motion.div
-              key={l.line}
-              animate={currentLine === l.line ? { backgroundColor: "rgba(0,255,136,0.07)" } : { backgroundColor: "transparent" }}
-              transition={{ duration: 0.2 }}
-              className="flex gap-3 px-2 py-0.5 rounded"
-              style={{ borderLeft: currentLine === l.line ? "2px solid #00ff88" : "2px solid transparent" }}
-            >
-              <span className="text-xs w-4 text-right shrink-0 select-none" style={{ color: "#3a3a5c" }}>{l.line}</span>
-              <span className="text-sm font-mono" style={{ color: currentLine === l.line ? "#00ff88" : "#a0a0c0" }}>
-                <CLine text={l.text} />
+        <div className="p-3 space-y-0.5 overflow-x-auto">
+          {lines.map((line, i) => (
+            <div key={i} className="flex gap-3 px-2 py-0.5">
+              <span className="text-xs w-5 text-right shrink-0 select-none font-mono" style={{ color: "#3a3a5c" }}>{i + 1}</span>
+              <span className="text-sm font-mono whitespace-pre" style={{ color: "#a0a0c0" }}>
+                <CLine text={line} />
               </span>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Variable tracker */}
-      <AnimatePresence>
-        {Object.keys(vars).length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            className="rounded-xl p-3"
-            style={{ background: "#0a0a14", border: "1px solid #1e1e35" }}
-          >
-            <p className="text-xs font-mono mb-2" style={{ color: "#3a3a5c" }}>Variables</p>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(vars).map(([k, v]) => (
-                <motion.div
-                  key={k}
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono"
-                  style={{ background: "#161625", border: "1px solid #1e1e35" }}
-                >
-                  <span style={{ color: "#ffb800" }}>{k}</span>
-                  <span style={{ color: "#3a3a5c" }}>=</span>
-                  <span className="font-bold" style={{ color: "#00ff88" }}>{String(v)}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Question + options */}
-      <AnimatePresence>
-        {ready && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="space-y-3"
-          >
-            <p className="text-sm font-semibold text-white">{payload.question}</p>
-            <div className="grid grid-cols-2 gap-2">
-              {payload.options.map((opt) => (
-                <motion.button
-                  key={String(opt)}
-                  disabled={disabled}
-                  onClick={() => { sounds.click(); onAnswer(opt); }}
-                  whileHover={!disabled ? { scale: 1.02 } : {}}
-                  whileTap={!disabled ? { scale: 0.97 } : {}}
-                  className="rounded-xl p-3 text-center font-bold font-mono text-sm transition-all duration-150"
-                  style={{
-                    background: "#161625",
-                    border: "1px solid #1e1e35",
-                    color: "#00ff88",
-                    opacity: disabled ? 0.4 : 1,
-                    cursor: disabled ? "not-allowed" : "pointer",
-                  }}
-                  onMouseEnter={(e) => { if (!disabled) { (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,255,136,0.35)"; (e.currentTarget as HTMLElement).style.background = "rgba(0,255,136,0.06)"; } }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#1e1e35"; (e.currentTarget as HTMLElement).style.background = "#161625"; }}
-                >
-                  {String(opt)}
-                </motion.button>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Answer input */}
+      <div className="flex gap-2">
+        <input
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && submit()}
+          disabled={disabled}
+          placeholder="Ta reponse..."
+          className="flex-1 rounded-xl px-4 py-3 text-sm font-mono outline-none"
+          style={{
+            background: "#161625",
+            border: "1px solid #1e1e35",
+            color: "#00ff88",
+            opacity: disabled ? 0.4 : 1,
+          }}
+          autoFocus
+        />
+        <motion.button
+          disabled={disabled || !value.trim()}
+          onClick={submit}
+          whileHover={!disabled && value.trim() ? { scale: 1.03 } : {}}
+          whileTap={!disabled && value.trim() ? { scale: 0.97 } : {}}
+          className="rounded-xl px-5 py-3 font-bold text-sm"
+          style={{
+            background: !disabled && value.trim() ? "#00ff88" : "#161625",
+            color: !disabled && value.trim() ? "#080810" : "#3a3a5c",
+            cursor: !disabled && value.trim() ? "pointer" : "not-allowed",
+          }}
+        >
+          Valider
+        </motion.button>
+      </div>
     </div>
   );
 }
 
 function CLine({ text }: { text: string }) {
-  const keywords = /\b(int|float|double|char|void|if|else|while|for|do|return|break|continue|struct|typedef|malloc|free|printf|scanf|NULL|sizeof)\b/g;
+  const keywords = /\b(int|float|double|char|void|if|else|while|for|do|return|break|continue|struct|typedef|enum|malloc|calloc|realloc|free|printf|scanf|fprintf|fscanf|fopen|fclose|fgets|fputs|fread|fwrite|fseek|ftell|strlen|strcpy|strcat|strcmp|strncpy|sprintf|sscanf|sizeof|NULL|include|define)\b/g;
   const parts = text.split(keywords);
   return (
     <>

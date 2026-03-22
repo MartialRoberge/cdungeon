@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { sounds } from "../../utils/sound";
 
-interface Segment { type: "code" | "newline"; text?: string; }
-
 interface Props {
   payload: {
-    code_segments: Segment[];
+    code_before: string;
+    blank_label: string;
+    code_after: string;
     options: string[];
     correct_answer: string;
   };
@@ -18,29 +18,22 @@ export default function FillBlank({ payload, onAnswer, disabled }: Props) {
     <div className="space-y-5">
       {/* Code with gap */}
       <div className="rounded-xl p-4" style={{ background: "#080810", border: "1px solid #1e1e35" }}>
-        <div className="text-sm font-mono leading-loose" style={{ color: "#a0a0c0" }}>
-          {payload.code_segments.map((seg, i) => {
-            if (seg.type === "newline") return <br key={i} />;
-            if (seg.text === "___") {
-              return (
-                <motion.span
-                  key={i}
-                  animate={{ borderColor: ["rgba(0,255,136,0.3)", "rgba(0,255,136,0.8)", "rgba(0,255,136,0.3)"] }}
-                  transition={{ duration: 1.8, repeat: Infinity }}
-                  className="inline-block min-w-[64px] text-center mx-1 px-2 rounded"
-                  style={{
-                    border: "2px solid rgba(0,255,136,0.5)",
-                    background: "rgba(0,255,136,0.07)",
-                    color: "#00ff88",
-                  }}
-                >
-                  ?
-                </motion.span>
-              );
-            }
-            return <span key={i}>{seg.text}</span>;
-          })}
-        </div>
+        <pre className="text-sm font-mono leading-loose whitespace-pre-wrap" style={{ color: "#a0a0c0" }}>
+          {payload.code_before}
+          <motion.span
+            animate={{ borderColor: ["rgba(0,255,136,0.3)", "rgba(0,255,136,0.8)", "rgba(0,255,136,0.3)"] }}
+            transition={{ duration: 1.8, repeat: Infinity }}
+            className="inline-block min-w-[64px] text-center mx-1 px-2 rounded"
+            style={{
+              border: "2px solid rgba(0,255,136,0.5)",
+              background: "rgba(0,255,136,0.07)",
+              color: "#00ff88",
+            }}
+          >
+            {payload.blank_label || "?"}
+          </motion.span>
+          {payload.code_after}
+        </pre>
       </div>
 
       {/* Options */}
