@@ -116,15 +116,25 @@ export default function RoomPage() {
       }
 
       if (result.correct) {
-        incrementCombo();
-        updatePlayer({
-          xp: result.new_total_xp,
-          ...(result.new_level ? { level: result.new_level } : {}),
-          ...(result.zone_cleared && room ? { current_zone: room.zone_number + 1 } : {}),
-        });
-        if ((isBoss || isMiniBoss) && result.room_cleared) setPhase("boss_cleared");
-        else if (result.room_cleared) setPhase("cleared");
-        else setPhase("correct");
+        if (result.room_cleared) {
+          // First time clearing — award combo, XP, navigate
+          incrementCombo();
+          updatePlayer({
+            xp: result.new_total_xp,
+            ...(result.new_level ? { level: result.new_level } : {}),
+            ...(result.zone_cleared && room ? { current_zone: room.zone_number + 1 } : {}),
+          });
+          if (isBoss || isMiniBoss) setPhase("boss_cleared");
+          else setPhase("cleared");
+        } else if (room?.is_cleared) {
+          // Replay — already cleared, just navigate to next
+          navigateToNext();
+          return;
+        } else {
+          // Correct but room not yet cleared (shouldn't happen with 1-attempt rooms, but safe)
+          incrementCombo();
+          setPhase("correct");
+        }
       } else {
         resetCombo(); loseHp();
         setPhase(hp <= 1 ? "dead" : "wrong");
@@ -133,25 +143,26 @@ export default function RoomPage() {
     } catch { setAnswering(false); }
   }, [roomId, answering, phase, combo, hp, isBoss, isMiniBoss, room]);
 
+  const navigateToNext = () => {
+    if (!roomId) return;
+    const parts = roomId.match(/z(\d+)_r(\d+)/);
+    if (!parts) { navigate("/map"); return; }
+    const z = Number(parts[1]), r = Number(parts[2]);
+    if (r < ROOMS_PER_ZONE) {
+      navigate(`/room/z${String(z).padStart(2, "0")}_r${String(r + 1).padStart(2, "0")}`);
+    } else {
+      navigate(`/zone/${z}`);
+    }
+  };
+
   const handleNext = () => {
     if (phase === "correct" || phase === "wrong") {
       setPhase("playing"); setAnswering(false);
     } else if (phase === "cleared") {
-      if (!roomId) return;
-      const parts = roomId.match(/z(\d+)_r(\d+)/);
-      if (parts) {
-        const z = Number(parts[1]), r = Number(parts[2]);
-        if (r < ROOMS_PER_ZONE) navigate(`/room/z${String(z).padStart(2, "0")}_r${String(r + 1).padStart(2, "0")}`);
-        else navigate(`/zone/${z}`);
-      }
+      navigateToNext();
     } else if (phase === "boss_cleared") {
-      if (!roomId) return;
-      const parts = roomId.match(/z(\d+)_r(\d+)/);
-      if (parts) {
-        const z = Number(parts[1]), r = Number(parts[2]);
-        if (isBoss || r >= ROOMS_PER_ZONE) navigate("/map");
-        else navigate(`/room/z${String(z).padStart(2, "0")}_r${String(r + 1).padStart(2, "0")}`);
-      } else navigate("/map");
+      if (isBoss) navigate("/map");
+      else navigateToNext();
     }
   };
 
